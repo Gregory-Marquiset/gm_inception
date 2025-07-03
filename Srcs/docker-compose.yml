@@ -4,6 +4,8 @@ services:
   nginx:
     build: ./Requirements/Nginx
     restart: always
+    depends_on:
+      - wordpress
     ports:
       - "443:443"
     volumes:
