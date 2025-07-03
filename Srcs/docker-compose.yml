@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: ./Requirements/Nginx
+    restart: always
+    ports:
+      - "443:443"
+    volumes:
+      - ./conf:/etc/nginx/conf.d:ro
+      - ./cerfs:/etc/ssl:ro
+    environment:
+      - DOMAIN_NAME=gmarquis.42.fr
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
