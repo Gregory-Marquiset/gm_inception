@@ -1,21 +1,22 @@
-# syntax=docker/dockerfile:1
-FROM debian:bullseye-slim
-ARG DEBIAN_FRONTEND=noninteractive
+FROM alpine:3.19
 
-RUN apt-get update \
-&& apt-get upgrade \
-&& apt-get install -y --no-install-recommends \
-    nginx \
-    openssl \
-&& rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache nginx openssl ca-certificates wget
 
-RUN mkdir -p /etc/nginx/conf.d /etc/ssl/private /etc/ssl/certs
+RUN addgroup -S nginx-user && adduser -S -G nginx-user nginx-user
+
+RUN mkdir -p /var/run/nginx /var/cache/nginx /etc/nginx/conf.d /etc/nginx/ssl \
+    && chown -R nginx-user:nginx-user /var/run/nginx /var/cache/nginx /etc/nginx /var/log/nginx /var/lib/nginx
 
 COPY conf/nginx.conf /etc/nginx/nginx.conf
-COPY conf/conf.d/ /etc/nginx/conf.d/
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY tools/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-EXPOSE 443
-ENTRYPOINT [ "entrypoint.sh" ]
-CMD ["nginx", "-g", "daemon off;"]
+USER nginx-user
+
+EXPOSE 8443
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
+  CMD wget -qO- https://localhost:8443/health --no-check-certificate || exit 1
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx","-g","daemon off;"]
