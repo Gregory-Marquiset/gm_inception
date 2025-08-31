@@ -1,4 +1,14 @@
 services:
+  adminer:
+      build: ./bonus/adminer
+      image: adminer:dev
+      networks: [inception_net]
+      restart: unless-stopped
+  redis:
+      build: ./bonus/redis
+      image: redis:dev
+      networks: [inception_net]
+      restart: unless-stopped
   nginx:
     build:
       context: ./requirements/nginx
@@ -17,14 +27,16 @@ services:
       timeout: 3s
       retries: 5
     depends_on:
-      - wordpress
+      wordpress:
+        condition: service_started
+      adminer:
+        condition: service_started
 
   wordpress:
     build:
       context: ./requirements/wordpress
     image: inception-wordpress:dev
     environment:
-      - WP_URL=${WP_URL}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
@@ -40,7 +52,8 @@ services:
       timeout: 3s
       retries: 5
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
 
   mariadb:
     build:
@@ -56,7 +69,7 @@ services:
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "--silent"]
+      test: ["CMD-SHELL", "mariadb-admin ping -uroot -p$${MYSQL_ROOT_PASSWORD} --socket=/run/mysqld/mysqld.sock --silent"]
       interval: 10s
       timeout: 3s
       retries: 5

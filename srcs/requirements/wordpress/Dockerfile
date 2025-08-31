@@ -4,6 +4,7 @@ FROM alpine:3.19
 RUN apk add --no-cache \
     php82 php82-fpm php82-cli php82-curl php82-mysqli php82-opcache php82-json \
     php82-mbstring php82-zip php82-xml php82-gd php82-phar php82-dom php82-tokenizer php82-ctype \
+    php82-pecl-redis \
     curl tar fcgi
 
 # Utilisateur non-root

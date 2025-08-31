@@ -50,5 +50,11 @@ EOSQL
 fi
 
 echo "[entrypoint] Starting mysqld..."
-exec mysqld --user=mysql --datadir="$DATADIR" --socket="$SOCK" \
-            --bind-address=0.0.0.0 --skip-name-resolve
+exec mysqld --user=mysql \
+            --datadir="$DATADIR" \
+            --socket="$SOCK" \
+            --bind-address=0.0.0.0 \
+            --port=3306 \
+            --skip-networking=0 \
+            --skip-name-resolve
+
