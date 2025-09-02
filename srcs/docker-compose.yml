@@ -5,10 +5,23 @@ services:
       networks: [inception_net]
       restart: unless-stopped
   redis:
-      build: ./bonus/redis
-      image: redis:dev
-      networks: [inception_net]
-      restart: unless-stopped
+    build: ./bonus/redis
+    image: redis:dev
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: ["redis-server",
+              "--bind","0.0.0.0",
+              "--port","6379",
+              "--save","",
+              "--appendonly","no",
+              "--requirepass","${REDIS_PASSWORD}"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep -q PONG || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [inception_net]
+    restart: unless-stopped
   nginx:
     build:
       context: ./requirements/nginx
@@ -41,6 +54,9 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_HOST=mariadb
+      - WP_REDIS_HOST=redis
+      - WP_REDIS_PORT=6379
+      - WP_REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - wp_data:/var/www/html
     networks: [inception_net]

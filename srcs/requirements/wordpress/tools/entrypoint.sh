@@ -21,4 +21,13 @@ if [ ! -f "$WP_READY_FILE" ]; then
   chown -R www:www "$WEBROOT"
 fi
 
+if [ -f /var/www/html/wp-config.php ] && [ -n "${WP_REDIS_HOST:-}" ]; then
+  awk -v h="$WP_REDIS_HOST" -v p="${WP_REDIS_PORT:-6379}" -v pw="${WP_REDIS_PASSWORD:-}" '
+    /Happy publishing/{
+      print "define('\''WP_REDIS_HOST'\'','\''" h "'\'');";
+      print "define('\''WP_REDIS_PORT'\''," p ");";
+      if (pw != "") print "define('\''WP_REDIS_PASSWORD'\'','\''" pw "'\'');";
+    }1' /var/www/html/wp-config.php > /tmp/wp-config.php && mv /tmp/wp-config.php /var/www/html/wp-config.php
+fi
+
 exec "$@"
