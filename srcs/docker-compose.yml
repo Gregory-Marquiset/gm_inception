@@ -4,6 +4,7 @@ services:
       image: adminer:dev
       networks: [inception_net]
       restart: unless-stopped
+
   redis:
     build: ./bonus/redis
     image: redis:dev
@@ -22,6 +23,45 @@ services:
       retries: 5
     networks: [inception_net]
     restart: unless-stopped
+
+  ftp:
+    build:
+      context: ./bonus/ftp
+    image: ftp:dev
+    environment:
+      - FTP_USER=${FTP_USER}
+      - FTP_PASS=${FTP_PASS}
+      - PASV_ADDRESS=${PASV_ADDRESS}   # 127.0.0.1 en local, sinon IP publique / FQDN
+      - PASV_MIN=30000
+      - PASV_MAX=30009
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - wp_data:/var/www/html          # même volume que WordPress
+    networks: [inception_net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "printf 'QUIT\\r\\n' | nc -w 2 127.0.0.1 21 | grep -q '^220'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    depends_on:
+      wordpress:
+        condition: service_started
+
+  static:
+    build: ./bonus/static-site
+    image: static-site:dev
+    networks: [inception_net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
   nginx:
     build:
       context: ./requirements/nginx
@@ -44,6 +84,8 @@ services:
         condition: service_started
       adminer:
         condition: service_started
+      static:
+        condition: service_healthy
 
   wordpress:
     build:
