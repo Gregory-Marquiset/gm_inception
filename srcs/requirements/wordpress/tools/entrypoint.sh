@@ -21,9 +21,11 @@ set -euo pipefail
 cd /var/www/html
 
 # ---- 1) Core WP (si volume vide) ----
+umask 0002
 if [ ! -f wp-includes/version.php ]; then
   echo "[wp] Downloading WordPress core..."
-  curl -fsSL https://wordpress.org/latest.tar.gz -o /tmp/wp.tar.gz
+  curl -fsSLo /tmp/wp.tar.gz --retry 5 --retry-delay 2 https://wordpress.org/latest.tar.gz
+  mkdir -p wp-content wp-content/plugins wp-content/themes wp-content/upgrade
   tar -xzf /tmp/wp.tar.gz --strip-components=1 -C .
   rm -f /tmp/wp.tar.gz
 fi
@@ -65,9 +67,9 @@ if [ -n "${WP_REDIS_PORT:-}" ]; then
   wp config set WP_REDIS_PORT "$WP_REDIS_PORT" --type=constant --allow-root
 fi
 
-# ---- 4) Installation (si pas déjà faite) ----
+# ---- 4b) Forcer une install propre si la DB est vide ----
 if ! wp core is-installed --allow-root >/dev/null 2>&1; then
-  echo "[wp] Running wp core install..."
+  echo "[wp] Installing WordPress (DB empty)..."
   wp core install \
     --url="$WP_URL" \
     --title="$WP_TITLE" \
@@ -76,15 +78,28 @@ if ! wp core is-installed --allow-root >/dev/null 2>&1; then
     --admin_email="$WP_ADMIN_EMAIL" \
     --skip-email \
     --allow-root
-
-  if [ "$ENABLE_REDIS" = "1" ]; then
-    wp plugin install redis-cache --activate --allow-root || true
-    wp redis enable --allow-root || true
-  fi
 fi
 
+# S’assurer que le compte admin demandé existe et a (optionnellement) le bon pass
+if ! wp user get "$WP_ADMIN_USER" --field=ID --allow-root >/dev/null 2>&1; then
+  wp user create "$WP_ADMIN_USER" "$WP_ADMIN_EMAIL" \
+    --role=administrator --user_pass="$WP_ADMIN_PASSWORD" --allow-root
+elif [ "${WP_FORCE_ADMIN_PASSWORD:-0}" = "1" ]; then
+  wp user update "$WP_ADMIN_USER" --user_pass="$WP_ADMIN_PASSWORD" --allow-root
+fi
+
+# Normaliser l’URL du site (utile si tu changes de domaine)
+wp option update home "$WP_URL" --allow-root
+wp option update siteurl "$WP_URL" --allow-root
+
+
+
 # ---- 5) Permissions propres ----
-chown -R www:www /var/www/html
+if [ "$(id -u)" -eq 0 ]; then
+  chown -R www:www /var/www/html
+else
+  echo "[wp] Skipping chown (not root)"
+fi
 
 # ---- Redis (optionnel et non-bloquant) ----
 if [ "${ENABLE_REDIS:-1}" = "1" ]; then
