@@ -96,9 +96,11 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_HOST=mariadb
+      - ENABLE_REDIS=1
       - WP_REDIS_HOST=redis
       - WP_REDIS_PORT=6379
       - WP_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - WP_CACHE_KEY_SALT=${DOMAIN_NAME}
       - WP_URL=${WP_URL}
       - WP_TITLE=${WP_TITLE}
       - WP_ADMIN_USER=${WP_ADMIN_USER}
@@ -118,6 +120,8 @@ services:
       start_period: 90s      # <-- donne du mou pour le 1er téléchargement/install
     depends_on:
       mariadb:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   mariadb:

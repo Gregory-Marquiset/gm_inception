@@ -49,7 +49,7 @@ if [ ! -f wp-config.php ]; then
     --skip-check \
     --force \
     --allow-root
-
+  wp config set WP_CACHE true --type=constant --allow-root || true
   wp config set FS_METHOD direct --type=constant --allow-root
   wp config shuffle-salts --allow-root
 
