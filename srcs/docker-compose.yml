@@ -53,7 +53,7 @@ services:
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -78,17 +78,18 @@ services:
       retries: 5
     depends_on:
       wordpress:
-        condition: service_started
+        condition: service_healthy
       adminer:
         condition: service_started
       static:
-        condition: service_healthy
+        condition: service_started
 
   wordpress:
     build:
       context: ./requirements/wordpress
     image: inception-wordpress:dev
     environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}            # <-- ajoute ça
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
@@ -105,7 +106,8 @@ services:
              "SCRIPT_NAME=/fpm-ping SCRIPT_FILENAME=/fpm-ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong"]
       interval: 10s
       timeout: 3s
-      retries: 5
+      retries: 10
+      start_period: 90s      # <-- donne du mou pour le 1er téléchargement/install
     depends_on:
       mariadb:
         condition: service_healthy

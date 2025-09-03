@@ -7,6 +7,11 @@ RUN apk add --no-cache \
     php82-pecl-redis \
     curl tar fcgi
 
+# WP-CLI + alias php -> php82
+RUN curl -fsSL -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+ && chmod +x /usr/local/bin/wp \
+ && ln -sf /usr/bin/php82 /usr/bin/php
+
 # Utilisateur non-root
 RUN addgroup -S www && adduser -S -G www www
 
