@@ -84,9 +84,6 @@ services:
         condition: service_started
       static:
         condition: service_started
-      portainer:
-        condition: service_started
-
 
   wordpress:
     user: "0:0"
@@ -147,26 +144,6 @@ services:
       timeout: 3s
       retries: 5
 
-  portainer:
-    build:
-      context: ./bonus/portainer
-      args:
-        PORTAINER_VERSION: ${PORTAINER_VERSION}
-    image: portainer:dev
-    environment:
-      - PORTAINER_ADMIN_PASSWORD=${PORTAINER_ADMIN_PASSWORD}
-      - PORTAINER_ADMIN_PWHASH=${PORTAINER_ADMIN_PWHASH}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    networks: [inception_net]
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- https://127.0.0.1:9443/api/status --no-check-certificate | grep -q status"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
 networks:
   inception_net: {}
 
@@ -183,10 +160,3 @@ volumes:
       type: none
       o: bind
       device: /home/gmarquis/data/mariadb
-  portainer_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/gmarquis/data/portainer
-
