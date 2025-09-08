@@ -16,7 +16,7 @@ IMAGES := inception-nginx:dev inception-wordpress:dev inception-mariadb:dev \
 all: dirs up        ## prépare les dossiers + up --build -d
 
 dirs:               ## crée les répertoires persistants s'ils n'existent pas
-	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
+	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb $(DATA_DIR)/portainer
 
 preperm:
 	@sudo install -d -o $(WP_UID) -g $(WP_GID) -m 2775 $(WP_DIR)
@@ -40,7 +40,7 @@ logs:               ## logs suivis
 	$(COMPOSE) logs -f
 
 clean: down         ## vide les données (⚠️ persistance WP/DB)
-	rm -rf $(DATA_DIR)/wordpress/* $(DATA_DIR)/mariadb/*
+	rm -rf $(DATA_DIR)/wordpress/* $(DATA_DIR)/mariadb/* $(DATA_DIR)/portainer/*
 
 fclean: clean       ## supprime aussi les images locales (laisse le cache builder)
 	- docker image rm $(IMAGES) 2>/dev/null || true

@@ -1,9 +1,26 @@
 services:
+  portainer:
+    image: portainer/portainer-ce:2.21.5
+    command:
+      - '--base-url=/portainer'
+      - '--admin-password'
+      - '$$2y$$10$$qKUVOCpeLRkBzVaVxnc2z.xwvlhXDZiRSfgDdfu.NkyYAIuuR95O.'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks: [inception_net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- https://127.0.0.1:9443/api/status --no-check-certificate | grep -q status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   adminer:
-      build: ./bonus/adminer
-      image: adminer:dev
-      networks: [inception_net]
-      restart: unless-stopped
+    build: ./bonus/adminer
+    image: adminer:dev
+    networks: [inception_net]
+    restart: unless-stopped
 
   redis:
     build: ./bonus/redis
@@ -84,6 +101,8 @@ services:
         condition: service_started
       static:
         condition: service_started
+      portainer:
+        condition: service_started
 
   wordpress:
     user: "0:0"
@@ -117,7 +136,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 10
-      start_period: 90s      # <-- donne du mou pour le 1er téléchargement/install
+      start_period: 90s
     depends_on:
       mariadb:
         condition: service_healthy
@@ -160,3 +179,9 @@ volumes:
       type: none
       o: bind
       device: /home/gmarquis/data/mariadb
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/gmarquis/data/portainer
