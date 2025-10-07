@@ -32,7 +32,7 @@ CMD ["nginx","-g","daemon off;"]
 #'ls -l /etc/nginx/ssl; \
 #stat -c "%U:%G %a %n" /etc/nginx/ssl/* 2>/dev/null || true'
 
-#curl -sk https://gmarquis.42.fr/health
+#docker compose exec nginx sh -lc 'ss -ltnp | grep 8443 || netstat -ltnp | grep 8443'
 
 #docker inspect --format='{{json .State.Health}}' $(docker compose ps -q nginx) | jq
 
