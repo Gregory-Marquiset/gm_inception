@@ -20,3 +20,20 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx","-g","daemon off;"]
+
+
+# Testing cmd
+
+#docker compose exec nginx id
+
+#docker compose exec nginx nginx -v
+
+#docker compose exec nginx sh -lc \
+#'ls -l /etc/nginx/ssl; \
+#stat -c "%U:%G %a %n" /etc/nginx/ssl/* 2>/dev/null || true'
+
+#curl -sk https://gmarquis.42.fr/health
+
+#docker inspect --format='{{json .State.Health}}' $(docker compose ps -q nginx) | jq
+
+#curl -sk https://gmarquis.42.fr/health

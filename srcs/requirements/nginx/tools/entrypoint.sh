@@ -6,7 +6,6 @@ SSL_DIR="/etc/nginx/ssl"
 
 mkdir -p "$SSL_DIR"
 
-# Génère un cert auto-signé si absent (avec SAN pour navigateur modernes)
 if [ ! -f "$SSL_DIR/server.crt" ] || [ ! -f "$SSL_DIR/server.key" ]; then
   openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
     -subj "/CN=${DOMAIN_NAME}" \
