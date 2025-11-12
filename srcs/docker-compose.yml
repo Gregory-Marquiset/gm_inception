@@ -1,5 +1,6 @@
 services:
   portainer:
+    container_name: portainer
     image: portainer/portainer-ce:2.21.5
     command:
       - '--base-url=/portainer'
@@ -17,14 +18,14 @@ services:
       retries: 10
 
   adminer:
+    container_name: adminer
     build: ./bonus/adminer
-    image: adminer:dev
     networks: [inception_net]
     restart: unless-stopped
 
   redis:
+    container_name: redis
     build: ./bonus/redis
-    image: redis:dev
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: ["redis-server",
@@ -42,8 +43,8 @@ services:
     restart: unless-stopped
 
   ftp:
+    container_name: ftp
     build: ./bonus/ftp
-    image: ftp:dev
     environment:
       - FTP_USER=${FTP_USER}
       - FTP_PASS=${FTP_PASS}
@@ -65,8 +66,8 @@ services:
       retries: 5
 
   static:
+    container_name: static
     build: ./bonus/static-site
-    image: static-site:dev
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
@@ -77,9 +78,9 @@ services:
       start_period: 5s
 
   nginx:
+    container_name: nginx
     build:
       context: ./requirements/nginx
-    image: inception-nginx:dev
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     ports:
@@ -105,10 +106,10 @@ services:
         condition: service_started
 
   wordpress:
+    container_name: wordpress
     user: "0:0"
     build:
       context: ./requirements/wordpress
-    image: inception-wordpress:dev
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -144,10 +145,10 @@ services:
         condition: service_healthy
 
   mariadb:
+    container_name: mariadb
     user: "0:0"
     build:
       context: ./requirements/mariadb
-    image: inception-mariadb:dev
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
@@ -172,16 +173,16 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/gmarquis/data/wordpress
+      device: /home/gmarquis/inceptionData/wordpress
   db_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/gmarquis/data/mariadb
+      device: /home/gmarquis/inceptionData/mariadb
   portainer_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/gmarquis/data/portainer
+      device: /home/gmarquis/inceptionData/portainer

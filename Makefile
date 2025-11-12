@@ -1,55 +1,34 @@
-# ====== Config ======
 LOGIN      ?= gmarquis
-DATA_DIR   ?= /home/$(LOGIN)/data
+DATA_DIR   ?= /home/$(LOGIN)/inceptionData
 COMPOSE    := docker compose -f srcs/docker-compose.yml --env-file srcs/.env
 
-WP_UID := 100
-WP_GID := 101
-WP_DIR := /home/gmarquis/data/wordpress
+.PHONY: all dirs up down clean fclean re
 
-IMAGES := inception-nginx:dev inception-wordpress:dev inception-mariadb:dev \
-          adminer:dev redis:dev
+all: dirs up
 
-# ====== Targets ======
-.PHONY: all dirs up down restart ps logs clean fclean re sh-nginx sh-wp sh-db
-
-all: dirs up        ## prépare les dossiers + up --build -d
-
-dirs:               ## crée les répertoires persistants s'ils n'existent pas
+dirs:
 	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb $(DATA_DIR)/portainer
-
-preperm:
-	@sudo install -d -o $(WP_UID) -g $(WP_GID) -m 2775 $(WP_DIR)
-	@sudo find $(WP_DIR) -type d -exec chmod 2775 {} \; || true
-	@sudo find $(WP_DIR) -type f -exec chmod 0664 {} \; || true
 
 up:
 	docker compose -f srcs/docker-compose.yml --env-file srcs/.env up --build -d
 
-
-down:               ## stop + retire les conteneurs
+down:
 	$(COMPOSE) down
 
-restart:            ## restart des services
-	$(COMPOSE) restart
+show:
+	- docker ps -a
+	- docker image ls
+	- docker volume ls
+	- docker network ls
+	- ls -l $(DATA_DIR)
 
-ps:                 ## état des services
-	$(COMPOSE) ps
+clean: down
+	rm -rf $(DATA_DIR)/
 
-logs:               ## logs suivis
-	$(COMPOSE) logs -f
+fclean: clean
+	- docker ps -aq | xargs -r docker rm -f
+	- docker images -q | xargs -r docker rmi -f
+	- docker volume ls -q | xargs -r docker volume rm -f
+	- docker system prune -a --volumes -f
 
-clean: down         ## vide les données (⚠️ persistance WP/DB)
-	rm -rf $(DATA_DIR)/wordpress/* $(DATA_DIR)/mariadb/* $(DATA_DIR)/portainer/*
-
-fclean: clean       ## supprime aussi les images locales (laisse le cache builder)
-	- docker image rm $(IMAGES) 2>/dev/null || true
-
-re: fclean all      ## rebuild complet
-
-sh-nginx:
-	$(COMPOSE) exec nginx sh || true
-sh-wp:
-	$(COMPOSE) exec wordpress sh || true
-sh-db:
-	$(COMPOSE) exec mariadb sh || true
+re: fclean all
