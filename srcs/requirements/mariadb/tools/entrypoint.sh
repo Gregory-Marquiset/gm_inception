@@ -13,7 +13,6 @@ SOCK="$RUNDIR/mysqld.sock"
 mkdir -p "$RUNDIR" "$DATADIR"
 chown -R mysql:mysql "$RUNDIR" "$DATADIR"
 
-# Init si /var/lib/mysql est vide
 if [ ! -d "$DATADIR/mysql" ]; then
   echo "[entrypoint] Initializing MariaDB data dir..."
   mariadb-install-db --user=mysql --datadir="$DATADIR" --skip-test-db --auth-root-authentication-method=normal
@@ -23,7 +22,6 @@ if [ ! -d "$DATADIR/mysql" ]; then
          --skip-networking=1 --bind-address=127.0.0.1 &
   pid="$!"
 
-  # attendre que ça réponde
   for i in $(seq 1 60); do
     if mariadb-admin --socket="$SOCK" ping --silent >/dev/null 2>&1; then
       break

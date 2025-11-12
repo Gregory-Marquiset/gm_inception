@@ -1,12 +1,10 @@
-FROM alpine:3.19
+FROM alpine:3.20
 
 RUN apk add --no-cache mariadb mariadb-client
 
-# Dossiers & droits pour l’utilisateur mysql (créé par le package)
 RUN mkdir -p /run/mysqld /var/lib/mysql \
  && chown -R mysql:mysql /run/mysqld /var/lib/mysql
 
-# Config & entrypoint
 COPY conf/server.cnf /etc/my.cnf.d/server.cnf
 COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

@@ -1,7 +1,6 @@
-FROM alpine:3.19
+FROM alpine:3.20
 
 RUN apk add --no-cache redis
-# user non-root
 RUN adduser -S -D -H -h /nonexistent -s /sbin/nologin redisuser \
  && mkdir -p /data && chown -R redisuser /data
 

@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3.20
 
 RUN addgroup -S static \
  && adduser  -S -D -H -h /nonexistent -s /sbin/nologin -G static static \
