@@ -8,7 +8,7 @@ services:
       - '$$2y$$10$$qKUVOCpeLRkBzVaVxnc2z.xwvlhXDZiRSfgDdfu.NkyYAIuuR95O.'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+      - portainer_volume:/data
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
@@ -19,12 +19,14 @@ services:
 
   adminer:
     container_name: adminer
+    image: adminer
     build: ./bonus/adminer
     networks: [inception_net]
     restart: unless-stopped
 
   redis:
     container_name: redis
+    image: redis
     build: ./bonus/redis
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
@@ -44,6 +46,7 @@ services:
 
   ftp:
     container_name: ftp
+    image: ftp
     build: ./bonus/ftp
     environment:
       - FTP_USER=${FTP_USER}
@@ -56,7 +59,7 @@ services:
       - "21:21"
       - "30000-30009:30000-30009"
     volumes:
-      - wp_data:/var/www/html
+      - wordpress_volume:/var/www/html
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
@@ -67,6 +70,7 @@ services:
 
   static:
     container_name: static
+    image: static
     build: ./bonus/static-site
     networks: [inception_net]
     restart: unless-stopped
@@ -79,6 +83,7 @@ services:
 
   nginx:
     container_name: nginx
+    image: nginx
     build:
       context: ./requirements/nginx
     environment:
@@ -86,7 +91,7 @@ services:
     ports:
       - "443:8443"
     volumes:
-      - wp_data:/var/www/html:ro
+      - wordpress_volume:/var/www/html:ro
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
@@ -107,6 +112,7 @@ services:
 
   wordpress:
     container_name: wordpress
+    image: wordpress
     user: "0:0"
     build:
       context: ./requirements/wordpress
@@ -128,7 +134,7 @@ services:
       - WP_ADMIN_EMAIL=${WP_ADMIN_EMAIL}
       - WP_FORCE_ADMIN_PASSWORD=1
     volumes:
-      - wp_data:/var/www/html
+      - wordpress_volume:/var/www/html
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
@@ -146,6 +152,7 @@ services:
 
   mariadb:
     container_name: mariadb
+    image: mariadb
     user: "0:0"
     build:
       context: ./requirements/mariadb
@@ -155,7 +162,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - db_data:/var/lib/mysql
+      - mariadb_volume:/var/lib/mysql
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
@@ -165,22 +172,26 @@ services:
       retries: 5
 
 networks:
-  inception_net: {}
+  inception_net:
+    name: inception_network
 
 volumes:
-  wp_data:
+  wordpress_volume:
+    name: wordpress_volume
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /home/gmarquis/inceptionData/wordpress
-  db_data:
+  mariadb_volume:
+    name: mariadb_volume
     driver: local
     driver_opts:
       type: none
       o: bind
       device: /home/gmarquis/inceptionData/mariadb
-  portainer_data:
+  portainer_volume:
+    name: portainer_volume
     driver: local
     driver_opts:
       type: none
