@@ -1,21 +1,32 @@
 services:
   portainer:
     container_name: portainer
-    image: portainer/portainer-ce:2.21.5
+    image: portainer
+    build:
+      context: ./bonus/portainer
+      args:
+        - PORTAINER_VERSION=2.21.5
+    user: "0:0"
+    group_add:
+      - "${DOCKER_GID}"
     command:
       - '--base-url=/portainer'
       - '--admin-password'
       - '$$2y$$10$$qKUVOCpeLRkBzVaVxnc2z.xwvlhXDZiRSfgDdfu.NkyYAIuuR95O.'
+      - '-H'
+      - 'unix:///var/run/docker.sock'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_volume:/data
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- https://127.0.0.1:9443/api/status --no-check-certificate | grep -q status"]
+      test: ["CMD-SHELL", "curl -fsSk https://127.0.0.1:9443/api/system/status >/dev/null || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      start_period: 30s
+      retries: 5
+
 
   adminer:
     container_name: adminer
@@ -108,7 +119,7 @@ services:
       static:
         condition: service_started
       portainer:
-        condition: service_started
+        condition: service_healthy
 
   wordpress:
     container_name: wordpress
