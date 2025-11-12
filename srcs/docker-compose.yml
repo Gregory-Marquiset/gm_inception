@@ -182,18 +182,18 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/gmarquis/inceptionData/wordpress
+      device: /home/gmarquis/data/wordpress
   mariadb_volume:
     name: mariadb_volume
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/gmarquis/inceptionData/mariadb
+      device: /home/gmarquis/data/mariadb
   portainer_volume:
     name: portainer_volume
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/gmarquis/inceptionData/portainer
+      device: /home/gmarquis/data/portainer
