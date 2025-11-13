@@ -2,6 +2,8 @@ services:
   portainer:
     container_name: portainer
     image: portainer
+    ports:
+      - 9443:9443
     build:
       context: ./bonus/portainer
       args:
@@ -10,10 +12,8 @@ services:
     group_add:
       - "${DOCKER_GID}"
     command:
-      - '--base-url=/portainer'
       - '--admin-password'
       - '$$2y$$10$$qKUVOCpeLRkBzVaVxnc2z.xwvlhXDZiRSfgDdfu.NkyYAIuuR95O.'
-      - '-H'
       - 'unix:///var/run/docker.sock'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
