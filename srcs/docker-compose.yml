@@ -6,14 +6,11 @@ services:
       - 9443:9443
     build:
       context: ./bonus/portainer
-      args:
-        - PORTAINER_VERSION=2.21.5
     user: "0:0"
-    group_add:
-      - "${DOCKER_GID}"
     command:
       - '--admin-password'
       - '$$2y$$10$$qKUVOCpeLRkBzVaVxnc2z.xwvlhXDZiRSfgDdfu.NkyYAIuuR95O.'
+      - '-H'
       - 'unix:///var/run/docker.sock'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
