@@ -1,13 +1,13 @@
 FROM alpine:3.20
 
-RUN apk add --no-cache wget apache2-utils
+RUN apk add --no-cache curl ca-certificates apache2-utils
 
-RUN	wget https://github.com/portainer/portainer/releases/download/2.33.3/portainer-2.33.3-linux-amd64.tar.gz && \
-	tar -xzvf portainer-2.33.3-linux-amd64.tar.gz && \
-	mv portainer /usr/local/. && \
-	rm -f portainer-2.33.3-linux-amd64.tar.gz;
+RUN	set eux; \
+	curl -fsSL -o /tmp/portainer.tgz \
+	"https://github.com/portainer/portainer/releases/download/2.33.3/portainer-2.33.3-linux-amd64.tar.gz" && \
+	tar -xzvf /tmp/portainer.tgz -C /usr/local && \
+	rm -f /tmp/portainer.tgz;
 
 ENTRYPOINT ["/usr/local/portainer/portainer"]
 
 EXPOSE 9443
-#CMD ["sleep", "5000"]
