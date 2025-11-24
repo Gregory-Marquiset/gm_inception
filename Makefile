@@ -17,6 +17,7 @@ up:
 fix-perms:
 	docker run --rm -v $(DATA_DIR)/mariadb:/data alpine sh -lc "chown -R $(UID):$(GID) /data"
 	docker run --rm -v $(DATA_DIR)/wordpress:/data alpine sh -lc 'chown -R $(UID):$(GID) /data'
+	docker run --rm -v $(DATA_DIR)/portainer:/data alpine sh -lc 'chown -R $(UID):$(GID) /data'
 
 down:
 	$(COMPOSE) down
@@ -38,4 +39,3 @@ fclean: clean
 	- docker system prune -a --volumes -f
 
 re: fclean all
-
