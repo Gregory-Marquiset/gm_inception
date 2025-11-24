@@ -1,6 +1,13 @@
 FROM alpine:3.21
 
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+
 RUN apk add --no-cache mariadb mariadb-client
+
+RUN deluser mysql || true && delgroup mysql || true && \
+    addgroup -g ${HOST_GID} mysql && \
+    adduser -D -H -u ${HOST_UID} -G mysql mysql
 
 RUN mkdir -p /run/mysqld /var/lib/mysql \
  && chown -R mysql:mysql /run/mysqld /var/lib/mysql

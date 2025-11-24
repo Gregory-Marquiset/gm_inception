@@ -116,6 +116,9 @@ services:
     user: "0:0"
     build:
       context: ./requirements/wordpress
+      args:
+        HOST_UID: ${UID}
+        HOST_GID: ${GID}
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -160,6 +163,9 @@ services:
     user: "0:0"
     build:
       context: ./requirements/mariadb
+      args:
+        HOST_UID: ${UID}
+        HOST_GID: ${GID}
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}

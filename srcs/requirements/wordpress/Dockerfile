@@ -1,5 +1,8 @@
 FROM alpine:3.21
 
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+
 RUN apk add --no-cache \
     php82 php82-fpm php82-cli php82-curl php82-mysqli php82-opcache php82-json \
     php82-mbstring php82-zip php82-xml php82-gd php82-phar php82-dom php82-tokenizer php82-ctype \
@@ -10,7 +13,9 @@ RUN curl -fsSL -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/bui
  && chmod +x /usr/local/bin/wp \
  && ln -sf /usr/bin/php82 /usr/bin/php
 
-RUN addgroup -S www && adduser -S -G www www
+RUN deluser www || true && delgroup www || true && \
+    addgroup -S -g ${HOST_GID} www && \
+    adduser  -S -G www -u ${HOST_UID} www
 
 RUN mkdir -p /var/www/html /var/run/php-fpm \
  && chown -R www:www /var/www /var/run/php-fpm
