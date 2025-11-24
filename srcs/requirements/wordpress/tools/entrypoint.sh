@@ -1,6 +1,23 @@
 #!/usr/bin/env sh
 set -euo pipefail
 
+read_secret() {
+  var="$1"; file_var="${var}_FILE"
+  if [ -n "${!file_var:-}" ] && [ -z "${!var:-}" ]; then
+    export "$var"="$(cat "${!file_var}")"
+    unset "$file_var"
+  fi
+}
+
+read_secret MYSQL_PASSWORD
+read_secret WP_ADMIN_PASSWORD
+read_secret WP_REDIS_PASSWORD
+
+
+
+
+
+
 : "${DOMAIN_NAME:=localhost}"
 : "${MYSQL_HOST:=mariadb}"
 : "${MYSQL_PORT:=3306}"

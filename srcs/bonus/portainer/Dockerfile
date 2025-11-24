@@ -1,4 +1,4 @@
-FROM alpine:3.20
+FROM alpine:3.21
 
 RUN apk add --no-cache wget apache2-utils
 
@@ -7,7 +7,9 @@ RUN	wget https://github.com/portainer/portainer/releases/download/2.33.3/portain
 	mv portainer /usr/local/. && \
 	rm -f portainer-2.33.3-linux-amd64.tar.gz;
 
+COPY tools/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 ENTRYPOINT ["/usr/local/portainer/portainer"]
 
 EXPOSE 9443
-#CMD ["sleep", "5000"]

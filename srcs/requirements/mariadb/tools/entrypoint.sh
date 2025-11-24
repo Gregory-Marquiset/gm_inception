@@ -1,10 +1,30 @@
 #!/bin/sh
 set -euo pipefail
 
+read_secret() {
+  var="$1"; file_var="${var}_FILE"; def="${2:-}"
+  if [ -n "${!var:-}" ] && [ -n "${!file_var:-}" ]; then
+    echo "[entrypoint] ERROR: $var et $file_var ne doivent pas être définis en même temps" >&2
+    exit 1
+  fi
+  val="$def"
+  if [ -n "${!var:-}" ]; then
+    val="${!var}"
+  elif [ -n "${!file_var:-}" ]; then
+    val="$(cat "${!file_var}")"
+  fi
+  export "$var"="$val"
+  unset "$file_var"
+}
+
 : "${MYSQL_DATABASE:=wordpress}"
 : "${MYSQL_USER:=wpuser}"
-: "${MYSQL_PASSWORD:=wppass}"
-: "${MYSQL_ROOT_PASSWORD:=change-me-root}"
+
+read_secret MYSQL_PASSWORD
+read_secret MYSQL_ROOT_PASSWORD
+
+: "${MYSQL_PASSWORD:?must be set (or MYSQL_PASSWORD_FILE)}"
+: "${MYSQL_ROOT_PASSWORD:?must be set (or MYSQL_ROOT_PASSWORD_FILE)}"
 
 DATADIR="/var/lib/mysql"
 RUNDIR="/run/mysqld"
@@ -55,4 +75,3 @@ exec mysqld --user=mysql \
             --port=3306 \
             --skip-networking=0 \
             --skip-name-resolve
-

@@ -1,4 +1,4 @@
-FROM alpine:3.20
+FROM alpine:3.21
 
 RUN apk add --no-cache php82 php82-session php82-mysqli php82-pdo_mysql php82-opcache curl
 RUN addgroup -S www && adduser -S -G www www

@@ -1,4 +1,4 @@
-FROM alpine:3.20
+FROM alpine:3.21
 
 RUN apk add --no-cache \
     php82 php82-fpm php82-cli php82-curl php82-mysqli php82-opcache php82-json \
