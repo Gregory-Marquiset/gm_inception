@@ -2,9 +2,14 @@
 set -euo pipefail
 
 read_secret() {
-  var="$1"; file_var="${var}_FILE"
-  if [ -n "${!file_var:-}" ] && [ -z "${!var:-}" ]; then
-    export "$var"="$(cat "${!file_var}")"
+  var="$1"
+  file_var="${var}_FILE"
+
+  v="$(printenv "$var" 2>/dev/null || true)"
+  fv="$(printenv "$file_var" 2>/dev/null || true)"
+
+  if [ -n "$fv" ] && [ -z "$v" ]; then
+    export "$var"="$(cat "$fv")"
     unset "$file_var"
   fi
 }
@@ -12,11 +17,6 @@ read_secret() {
 read_secret MYSQL_PASSWORD
 read_secret WP_ADMIN_PASSWORD
 read_secret WP_REDIS_PASSWORD
-
-
-
-
-
 
 : "${DOMAIN_NAME:=localhost}"
 : "${MYSQL_HOST:=mariadb}"

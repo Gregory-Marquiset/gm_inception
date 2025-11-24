@@ -2,20 +2,32 @@
 set -euo pipefail
 
 read_secret() {
-  var="$1"; file_var="${var}_FILE"; def="${2:-}"
-  if [ -n "${!var:-}" ] && [ -n "${!file_var:-}" ]; then
+  var="$1"
+  file_var="${var}_FILE"
+  def="${2:-}"
+
+  v="$(printenv "$var" 2>/dev/null || true)"
+  fv="$(printenv "$file_var" 2>/dev/null || true)"
+
+  if [ -n "$v" ] && [ -n "$fv" ]; then
     echo "[entrypoint] ERROR: $var et $file_var ne doivent pas être définis en même temps" >&2
     exit 1
   fi
-  val="$def"
-  if [ -n "${!var:-}" ]; then
-    val="${!var}"
-  elif [ -n "${!file_var:-}" ]; then
-    val="$(cat "${!file_var}")"
+
+  if [ -n "$v" ]; then
+    val="$v"
+  elif [ -n "$fv" ]; then
+    val="$(cat "$fv")"
+  else
+    val="$def"
   fi
-  export "$var"="$val"
+
+  eval "$var=\$val"
+  export "$var"
   unset "$file_var"
 }
+
+
 
 : "${MYSQL_DATABASE:=wordpress}"
 : "${MYSQL_USER:=wpuser}"

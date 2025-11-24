@@ -12,7 +12,8 @@ dirs:
 	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb $(DATA_DIR)/portainer
 
 up:
-	docker compose -f srcs/docker-compose.yml --env-file srcs/.env up --build -d
+	docker compose -f srcs/docker-compose.yml --env-file srcs/.env build --no-cache --pull
+	docker compose -f srcs/docker-compose.yml --env-file srcs/.env up -d --force-recreate
 
 fix-perms:
 	docker run --rm -v $(DATA_DIR)/mariadb:/data alpine sh -lc "chown -R $(UID):$(GID) /data"

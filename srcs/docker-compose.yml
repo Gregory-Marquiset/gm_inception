@@ -170,6 +170,8 @@ services:
       - mysql_password
     volumes:
       - mariadb_volume:/var/lib/mysql
+      - ./secrets/mysql_password:/run/secrets/mysql_password:ro
+      - ./secrets/mysql_root_password:/run/secrets/mysql_root_password:ro
     networks: [inception_net]
     restart: unless-stopped
     healthcheck:

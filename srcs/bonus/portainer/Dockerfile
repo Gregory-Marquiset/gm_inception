@@ -10,6 +10,6 @@ RUN	wget https://github.com/portainer/portainer/releases/download/2.33.3/portain
 COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/usr/local/portainer/portainer"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 EXPOSE 9443
