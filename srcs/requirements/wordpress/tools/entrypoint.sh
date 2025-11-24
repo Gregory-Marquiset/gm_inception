@@ -23,12 +23,10 @@ read_secret WP_REDIS_PASSWORD
 : "${MYSQL_PORT:=3306}"
 : "${MYSQL_DATABASE:=wordpress}"
 : "${MYSQL_USER:=wpuser}"
-: "${MYSQL_PASSWORD:=wpsecret}"
 
 : "${WP_URL:=https://${DOMAIN_NAME}}"
 : "${WP_TITLE:=Inception WP}"
 : "${WP_ADMIN_USER:=admin}"
-: "${WP_ADMIN_PASSWORD:=adminpass}"
 : "${WP_ADMIN_EMAIL:=admin@example.com}"
 
 : "${REDIS_HOST:=redis}"

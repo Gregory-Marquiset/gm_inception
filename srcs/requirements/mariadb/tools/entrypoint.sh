@@ -27,8 +27,6 @@ read_secret() {
   unset "$file_var"
 }
 
-
-
 : "${MYSQL_DATABASE:=wordpress}"
 : "${MYSQL_USER:=wpuser}"
 
