@@ -24,7 +24,6 @@ services:
       start_period: 30s
       retries: 5
 
-
   adminer:
     container_name: adminer
     image: adminer
