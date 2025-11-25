@@ -1,14 +1,22 @@
 FROM alpine:3.21
 
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+
 RUN apk add --no-cache redis
+
+RUN deluser redisuser 2>/dev/null || true && delgroup redisuser 2>/dev/null || true && \
+    addgroup -S -g ${HOST_GID} redisuser && \
+    adduser  -S -D -H -h /nonexistent -s /sbin/nologin -G redisuser -u ${HOST_UID} redisuser
 
 COPY tools/entrypoint.sh /entrypoint.sh
 
-RUN adduser -S -D -H -h /nonexistent -s /sbin/nologin redisuser \
-  && mkdir -p /data && chown -R redisuser /data \
-  && chmod +x /entrypoint.sh
+RUN mkdir -p /data \
+ && chown -R redisuser:redisuser /data /entrypoint.sh \
+ && chmod +x /entrypoint.sh
 
 USER redisuser
+
 EXPOSE 6379
 
 HEALTHCHECK --interval=10s --timeout=3s --retries=5 \

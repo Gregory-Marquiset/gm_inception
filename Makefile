@@ -1,8 +1,6 @@
 LOGIN      ?= gmarquis
 DATA_DIR   ?= /home/$(LOGIN)/data
 COMPOSE    := docker compose -f srcs/docker-compose.yml --env-file srcs/.env
-UID := $(shell id -u)
-GID := $(shell id -g)
 
 .PHONY: all dirs up down clean fclean re
 
@@ -25,7 +23,7 @@ show:
 	- ls -l $(DATA_DIR)
 
 clean: down
-	rm -rf $(DATA_DIR)
+	rm -rf $(DATA_DIR)/*
 
 fclean: clean
 	- docker ps -aq | xargs -r docker rm -f

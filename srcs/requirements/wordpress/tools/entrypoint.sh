@@ -99,12 +99,6 @@ fi
 wp option update home "$WP_URL" --allow-root
 wp option update siteurl "$WP_URL" --allow-root
 
-if [ "$(id -u)" -eq 0 ]; then
-  chown -R www:www /var/www/html
-else
-  echo "[wp] Skipping chown (not root)"
-fi
-
 if [ "${ENABLE_REDIS:-1}" = "1" ]; then
   REDIS_PORT="${REDIS_PORT:-6379}"
 
@@ -121,6 +115,10 @@ if [ "${ENABLE_REDIS:-1}" = "1" ]; then
   else
     echo "[wp] Redis indisponible, on n’active pas le cache (pas d’erreur)."
   fi
+fi
+
+if [ "$(id -u)" -eq 0 ]; then
+  chown -R www:www /var/www/html
 fi
 
 echo "[wp] Starting php-fpm82..."

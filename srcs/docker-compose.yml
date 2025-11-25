@@ -4,6 +4,9 @@ services:
     image: portainer
     build:
       context: ./bonus/portainer
+    environment:
+      - HOST_UID=${UID}
+      - HOST_GID=${GID}
     ports:
       - 9443:9443
     user: "0:0"
@@ -32,7 +35,11 @@ services:
   redis:
     container_name: redis
     image: redis
-    build: ./bonus/redis
+    build: 
+      context: ./bonus/redis
+      args:
+        HOST_UID: ${UID}
+        HOST_GID: ${GID}
     secrets:
       - redis_password
     networks: [inception_net]
@@ -208,10 +215,6 @@ volumes:
   portainer_volume:
     name: portainer_volume
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/gmarquis/data/portainer
 
 secrets:
   mysql_root_password:
