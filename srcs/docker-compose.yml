@@ -59,6 +59,7 @@ services:
       - PASV_MIN=30000
       - PASV_MAX=30009
       - FTP_ROOT=/var/www/html/wp-content/uploads
+      - FTP_PASS_FILE=/run/secrets/ftp_password
     secrets:
       - ftp_password
     ports:

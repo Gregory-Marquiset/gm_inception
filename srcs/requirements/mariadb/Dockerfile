@@ -25,3 +25,17 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["mysqld"]
+
+# tester la db
+#   docker exec -it mariadb sh -lc 'mariadb -u"$MYSQL_USER" -p"$(cat //run/secrets/mysql_password)" "$MYSQL_DATABASE"'
+#   show DATABASES;
+#   USE wordpress; SHOW TABLES;
+#   SELECT COUNT(*) FROM wp_comments;
+#   CREATE TABLE test (
+#   -> id AUTO_INCREMENT PRIMARY KEY,
+#   -> name VARCHAR(50)
+#   -> tag VARCHAR(15)
+#   -> );
+#   DESCRIBE test
+#   INSERT INTO test (name, tag) VALUE ('gregory', 'gmarquis');
+#   SELECT * FROM test

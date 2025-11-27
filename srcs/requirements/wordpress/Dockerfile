@@ -36,3 +36,7 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["php-fpm82", "-F"]
+
+#   test wordpress
+#       <html> via curl -k https://gmarquis.42.fr | head
+#       conection direct a l'admin panel via https://gmarquis.42.fr/wp-admin

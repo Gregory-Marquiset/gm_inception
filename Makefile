@@ -2,15 +2,24 @@ LOGIN      ?= gmarquis
 DATA_DIR   ?= /home/$(LOGIN)/data
 COMPOSE    := docker compose -f srcs/docker-compose.yml --env-file srcs/.env
 
-.PHONY: all dirs up down clean fclean re
+.PHONY: all dirs up up-build build build-nocache down clean fclean re
 
 all: dirs up
 
 dirs:
-	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb $(DATA_DIR)/portainer
+	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
 
-up:
-	docker compose -f srcs/docker-compose.yml --env-file srcs/.env up --build -d
+build: dirs
+	$(COMPOSE) build
+
+build-nocache: dirs
+	$(COMPOSE) build --no-cache
+
+up: build dirs
+	$(COMPOSE) up -d
+
+up-build: dirs
+	$(COMPOSE) up -d --build
 
 down:
 	$(COMPOSE) down

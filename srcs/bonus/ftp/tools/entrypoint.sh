@@ -1,19 +1,18 @@
 #!/bin/sh
 set -euo pipefail
 
-read_secret() {
-  var="$1"; file_var="${var}_FILE"
-  if [ -n "${!file_var:-}" ] && [ -z "${!var:-}" ]; then
-    export "$var"="$(cat "${!file_var}")"
-    unset "$file_var"
-  fi
-}
-
 FTP_ROOT="${FTP_ROOT:-/var/www/html/wp-content/uploads}"
 FTP_USER="${FTP_USER:?missing FTP_USER}"
 
-read_secret FTP_PASS
-: "${FTP_PASS:?missing FTP_PASS or FTP_PASS_FILE}"
+if [ -z "${FTP_PASS:-}" ]; then
+  if [ -n "${FTP_PASS_FILE:-}" ] && [ -f "$FTP_PASS_FILE" ]; then
+    FTP_PASS="$(cat "$FTP_PASS_FILE")"
+  elif [ -f /run/secrets/ftp_password ]; then
+    FTP_PASS="$(cat /run/secrets/ftp_password)"
+  fi
+fi
+
+: "${FTP_PASS:?missing FTP_PASS, FTP_PASS_FILE or /run/secrets/ftp_password}"
 
 VOL_GID="$(stat -c %g /var/www/html)"
 if ! getent group www >/dev/null 2>&1; then

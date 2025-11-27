@@ -20,3 +20,10 @@ HEALTHCHECK --interval=10s --timeout=3s --retries=5 \
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["nginx","-g","daemon off;"]
+
+# tester nginx
+#   docker ps --format 'table {{.Names}}\t{{.Ports}}'
+#   ss -tulpen | grep -E ':80 |:443 '
+#   curl -vk https://gmarquis.42.fr | grep SSL
+#   curl -k https://gmarquis.42.fr/health
+#   co refuser: curl -v http://gmarquis.42.fr
